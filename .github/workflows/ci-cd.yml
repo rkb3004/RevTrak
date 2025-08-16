@@ -1,0 +1,53 @@
+name: CI/CD
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: revtrak
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+      - name: Build backend
+        run: |
+          cd backend
+          npm run build
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      - name: Build frontend (Vite)
+        run: |
+          cd frontend
+          npm run build
+      - name: Preview frontend build (Vite)
+        run: |
+          cd frontend
+          npm run preview &
+          sleep 10
+      - name: Run backend tests (placeholder)
+        run: echo "No backend tests yet"
+      - name: Run frontend tests (placeholder)
+        run: echo "No frontend tests yet"
+      - name: Docker Compose Build
+        run: docker-compose build
+      - name: Docker Compose Up (detached)
+        run: docker-compose up -d
+      - name: Docker Compose Down
+        run: docker-compose down
